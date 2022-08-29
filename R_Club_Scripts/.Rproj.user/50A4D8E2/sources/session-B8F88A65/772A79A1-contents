@@ -1,0 +1,216 @@
+---
+title: "2022_08_29_chapter2"
+author: "Matthew Davis"
+date: "2022-08-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(lobstr)
+```
+
+
+## Chapter 2: Names and Values
+
+Quiz
+1. Given the following data frame, how do I create a new column called “3” that contains the sum of `1` and `2`? You may only use `$`, not `[[`. What makes `1`, `2`, and `3` challenging as variable names?
+
+```{r}
+# Dataframe
+df <- data.frame(runif(3), runif(3))
+names(df) <- c(1, 2)
+df
+
+# Solution
+df %>%
+  mutate(`3` = `1`+`2`)
+```
+
+2. In the following code, how much memory does `y` occupy?
+```{r}
+x <- runif(1e6)
+y <- list(x, x, x) # 8Mb
+```
+
+3. On which line does `a` get copied in the following example?
+```{r}
+a <- c(1, 5, 3, 2)
+b <- a
+b[[1]] <- 10
+b
+# on the first line
+```
+
+Acccessing an objects identifiers
+```{r}
+obj_addr(df)
+obj_addr(y)
+```
+
+Identifiers change every time R is restarted
+
+When creating names, use backticks instead of " or ' for consistency of naming context
+
+__2.2.2 Exercises__
+
+1. Explain the relationship between a, b, c and d in the following code:
+```{r}
+a <- 1:10
+b <- a
+c <- b
+d <- 1:10
+```
+ a is b and c. d contains the same values, but was created without association with a, b, and c
+
+2. The following code accesses the mean function in multiple ways. Do they all point to the same underlying function object? Verify this with `lobstr::obj_addr()`.
+
+```{r}
+mean
+base::mean
+get("mean")
+evalq(mean)
+match.fun("mean")
+```
+In Markdown, the addresses are told to you, so it seems you don't need `obj_addr()` to confirm the object id
+
+3. By default, base R data import functions, like `read.csv()`, will automatically convert non-syntactic names to syntactic ones. Why might this be problematic? What option allows you to suppress this behaviour?
+```{r}
+?read.csv
+# Use `check.names = FALSE`
+```
+Changing the names could create uncertainty in what is being displayed
+
+4. What rules does `make.names()` use to convert non-syntactic names into syntactic ones?
+`make.names(names, unique = FALSE, allow_ = TRUE)`
+
+5. I slightly simplified the rules that govern syntactic names. Why is `.123e1` not a syntactic name? Read `?make.names` for the full details
+It could be due to invalid characters being converted to `.`
+
+See when an object gets coppied with `tracemem()`
+
+```{r}
+x <- c(1, 2, 3)
+cat(tracemem(x), "\n")
+
+#From here on, whenever that object is copied, `tracemem()` will print a message telling you which object was copied, its new address, and the sequence of calls that led to the copy:
+
+y <- x
+y[[3]] <- 4
+
+# `untracemem()` turns tracing off
+untracemem(x)
+```
+
+R uses refrences with character vectors
+```{r}
+x <- c("a", "a", "abc", "d")
+
+# `ref()` shows the references r uses when `character = TRUE`
+
+ref(x, character = TRUE)
+
+```
+
+2.3.6 Exercises
+1. Why is `tracemem(1:10)` not useful?
+```{r}
+tracemem(1:10)
+```
+There was no object created, so the ID is not going to be consistent.
+
+2. Explain why `tracemem()` shows two copies when you run this code. Hint: carefully look at the difference between this code and the code shown earlier in the section
+```{r}
+x <- c(1L, 2L, 3L)
+tracemem(x)
+
+x[[3]] <- 4
+```
+Because the new value is non-syntactic. Is it being saved as two classes?
+
+3. Sketch out the relationship between the following objects:
+```{r}
+a <- 1:10
+
+tracemem(a)
+
+b <- list(a, a)
+
+tracemem(b)
+
+c <- list(b, a, 1:10)
+
+tracemem(c)
+```
+
+
+4. What happens when you run this code?
+```{r}
+x <- list(1:10)
+x[[2]] <- x
+x
+```
+
+
+2.4.1 Exercises
+
+1. In the following example, why are `object.size(y)` and `obj_size(y)` so radically different? Consult the documentation of `object.size()`
+```{r}
+y <- rep(list(runif(1e4)), 100)
+
+object.size(y)
+
+obj_size(y)
+
+?object.size
+```
+`obj_size` is reporting in kB, `object.size` is reporting in B
+
+2. Take the following list. Why is its size somewhat misleading?
+```{r}
+funs <- list(mean, sd, var)
+obj_size(funs)
+obj_size(funs[[1]])
+obj_size(funs[[2]])
+obj_size(funs[[3]])
+```
+It is a list of three functions and tells you the total size, not the size of each function. These are also base R functions, so they are already loaded on boot
+
+3. Predict the output of the following code:
+```{r}
+a <- runif(1e6)
+obj_size(a)
+
+b <- list(a, a)
+obj_size(b)
+obj_size(a, b)
+
+b[[1]][[1]] <- 10
+obj_size(b)
+obj_size(a, b)
+
+b[[2]][[1]] <- 10
+obj_size(b)
+obj_size(a, b)
+```
+
+2.5.3 Exercises
+
+1. Explain why the following code doesn’t create a circular list.
+```{r}
+x <- list()
+x[[1]] <- x
+```
+Because the list originally contained nothing
+
+2. Wrap the two methods for subtracting medians into two functions, then use the ‘bench’ package to carefully compare their speeds. How does performance change as the number of columns increase?
+```{r}
+
+```
+
+3. What happens if you attempt to use `tracemem()` on an environment?
+Environments are always modified in place
