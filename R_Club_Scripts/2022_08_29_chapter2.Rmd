@@ -24,7 +24,7 @@ Quiz
 1. Given the following data frame, how do I create a new column called “3” that contains the sum of `1` and `2`? You may only use `$`, not `[[`. What makes `1`, `2`, and `3` challenging as variable names?
 
 ```{r}
-# Dataframe
+# Data frame
 df <- data.frame(runif(3), runif(3))
 names(df) <- c(1, 2)
 df
@@ -214,6 +214,7 @@ Because the list originally contained nothing
 ```{r}
 
 ```
+Assuming speeds slow down as you add columns
 
 3. What happens if you attempt to use `tracemem()` on an environment?
 Environments are always modified in place
