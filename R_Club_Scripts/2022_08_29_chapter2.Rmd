@@ -2,7 +2,10 @@
 title: "2022_08_29_chapter2"
 author: "Matthew Davis"
 date: "2022-08-28"
-output: html_document
+output:
+  html_document: 
+    keep_md: yes
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -214,3 +217,4 @@ Because the list originally contained nothing
 
 3. What happens if you attempt to use `tracemem()` on an environment?
 Environments are always modified in place
+
