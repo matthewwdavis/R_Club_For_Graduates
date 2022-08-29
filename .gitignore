@@ -1,3 +1,9 @@
+# General files to ignore
+.log
+.md
+.tex
+
+# R output ignore
 .Rproj.user
 .Rhistory
 .RData
