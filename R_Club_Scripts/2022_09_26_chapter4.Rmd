@@ -223,7 +223,15 @@ mtcars[1:20,]
 
 Implement your own function that extracts the diagonal entries from a matrix (it should behave like `diag(x)` where `x` is a matrix).
 ```{r}
-# May need further assistance with this.
+View(diag)
+
+#Paulo's approach
+extract_diag <- function(x)
+{
+  indices <- rep(1:min(dim(x)), each = length(dim(x)))
+  select <- matrix(ncol = length(dim(x)), byrow = TRUE, indices)
+  x[select]
+}
 ```
 
 What does `df[is.na(df)] <- 0` do? How does it work?
@@ -237,13 +245,19 @@ Brainstorm as many ways as possible to extract the third value from the `cyl` va
 ```{r}
 mtcars
 mtcars$cyl[3]
+mtcars[3,2]
+mtcars[3, "cyl"]
+mtcars[["cyl"]][3]
+mtcars[3,]$cyl
+purrr::pluck(mtcars, "cyl", 3)
 ```
 
 Given a linear model, e.g., `mod <- lm(mpg ~ wt, data = mtcars)`, extract the residual degrees of freedom. Then extract the R squared from the model summary (`summary(mod)`)
 ```{r}
 mod <- lm(mpg ~ wt, data = mtcars)
-
 summary(mod)
+
+str(mod$df.residual)
 ```
 
 #### 4.5 Exercises
@@ -254,5 +268,13 @@ df[sample(nrow(df)),]
 ```
 
 How would you select a random sample of `m` rows from a data frame? What if the sample had to be contiguous (i.e., with an initial row, a final row, and every row in between)?
+```{r}
+start <- sample(nrow(mtcars)-4, size = 1)
+mtcars[start:(start+4), ]
+```
 
 How could you put the columns in a data frame in alphabetical order?
+```{r}
+# use `order()` and subset
+```
+
