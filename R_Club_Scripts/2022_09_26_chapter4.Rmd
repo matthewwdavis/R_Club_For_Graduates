@@ -1,0 +1,258 @@
+---
+title: "2022_09_26_chapter4"
+author: "Matthew Davis"
+date: "2022-09-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Chapter 4 Subsetting
+
+### 4.1 Introduction
+`str()` shows the objects structure
+`View()` is the interactive RStudio viewer
+
+### 4.2 Selecting multiple elements
+`[]` selects any number of elements from a vector
+```{r}
+x <- c(2.1, 4.2, 3.3, 5.4)
+```
+
+Postive integers 
+```{r}
+# Positive integers return elements at the specified positions
+x[c(3, 1)]
+
+x[order(x)]
+
+# Duplicate indices will duplicate values
+x[c(1, 1)]
+
+# Real numbers are silently truncated to integers
+x[c(2.1, 2.9)]
+```
+
+Negative integers
+```{r}
+# Negative integers exclude elements at the specified positions
+x[-c(3, 1)]
+
+# You can't mix positive and negative integers in a single subset
+x[c(-1, 2)]
+```
+
+Logical vectors
+```{r}
+#Logical vectors select elements where the corresponding logical value is TRUE. This is probably the most useful type of subsetting because you can write an expression that uses a logical vector:
+x[c(TRUE, TRUE, FALSE, FALSE)]
+
+x[x > 3]
+
+```
+
+Recycling rules
+```{r}
+# In x[y], what happens if x and y are different lengths? The behaviour is controlled by the recycling rules where the shorter of the two is recycled to the length of the longer. 
+
+x[c(TRUE, FALSE)]
+# Equivalent to
+x[c(TRUE, FALSE, TRUE, FALSE)]
+```
+
+Nothing
+```{r}
+# Nothing returns the original vector. 
+x[]
+```
+
+Zero
+```{r}
+# Zero returns a zero-length vector.
+x[0]
+```
+
+Character vectors
+```{r}
+# If the vector is named, you can also use character vectors to return elements with matching names.
+(y <- setNames(x, letters[1:4]))
+y[c("d", "c", "a")]
+
+# Like integer indices, you can repeat indices
+y[c("a", "a", "a")]
+
+# When subsetting with [, names are always matched exactly
+z <- c(abc = 1, def = 2)
+z[c("a", "d")]
+```
+
+Factors
+```{r}
+# Factors are not treated specially when subsetting. This means that subsetting will use the underlying integer vector, not the character levels. You should avoid subsetting with factors.
+y[factor("b")]
+```
+
+You can subset higher-dimensional structures in three ways:
+
+With multiple vectors.
+With a single vector.
+With a matrix.
+
+```{r}
+a <- matrix(1:9, nrow = 3)
+colnames(a) <- c("A", "B", "C")
+
+a[c(TRUE, FALSE, TRUE), c("B", "A")]
+
+a[0, -2]
+```
+
+`[]` simplifies the result to the lowest possible dimensionality
+```{r}
+a[1, ]
+a[1,1]
+```
+
+Because both matrices and arrays are just vectors with special attributes, you can subset them with a single vector, as if they were a 1D vector.
+```{r}
+vals <- outer(1:5, 1:5, FUN = "paste", sep = ",")
+vals
+
+vals[c(4, 15)]
+```
+
+You can also subset higher-dimensional data structures with an integer matrix (or, if named, a character matrix). Each row in the matrix specifies the location of one value, and each column corresponds to a dimension in the array.
+```{r}
+select <- matrix(ncol = 2, byrow = TRUE, c(
+  1, 1,
+  3, 1,
+  2, 4
+))
+
+vals[select]
+```
+
+Data frames have the characteristics of both lists and matrices:
+
+When subsetting with a single index, they behave like lists and index the columns, so df[1:2] selects the first two columns.
+
+When subsetting with two indices, they behave like matrices, so df[1:3, ] selects the first three rows (and all the columns)33.
+
+```{r}
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+
+df[df$x == 2, ]
+
+df[c(1, 3), ]
+
+df[c("x", "z")]
+
+df[, c("x", "z")]
+
+# There's an important difference if you select a single 
+# column: matrix subsetting simplifies by default, list 
+# subsetting does not.
+str(df["x"])
+
+str(df[, "x"])
+```
+
+Subsetting a tibble with `[]` always returns a tibble
+```{r}
+df <- tibble::tibble(x = 1:3, y = 3:1, z = letters[1:3])
+
+str(df["x"])
+
+str(df[, "x"])
+```
+
+To preserve the original dimensionality, you must use `drop = FALSE`
+```{r}
+a <- matrix(1:4, nrow = 2)
+str(a[1, ])
+
+str(a[1, , drop = FALSE])
+```
+
+Data frames with a single column will return just the content of that column
+```{r}
+df <- data.frame(a = 1:2, b = 1:2)
+str(df[, "a"])
+
+str(df[, "a", drop = FALSE])
+```
+
+Factor subsetting also has a drop argument, but its meaning is rather different. It controls whether or not levels (rather than dimensions) are preserved, and it defaults to FALSE. If you find you’re using drop = TRUE a lot it’s often a sign that you should be using a character vector instead of a factor.
+```{r}
+z <- factor(c("a", "b"))
+z[1, drop = TRUE]
+```
+
+#### 4.2 Exercises
+Fix each of the following common data frame subsetting errors:
+```{r}
+mtcars[mtcars$cyl == 4, ]
+mtcars[-c(1:4), ]
+mtcars[mtcars$cyl <= 5,]
+mtcars[mtcars$cyl == 4 | 6, ] # I'm not sure what the error is here?
+```
+
+Why does the following code yield five missing values? (Hint: why is it different from x[NA_real_]?)
+```{r}
+x <- 1:5
+x[NA]
+# A missing value in the index always yeilds a missing value output. So there are 5 values in the vector, all are being reported as NA
+```
+
+What does `upper.tri()` return? How does subsetting a matrix with it work? Do we need any additional subsetting rules to describe its behaviour?
+```{r}
+x <- outer(1:5, 1:5, FUN = "*")
+x
+x[upper.tri(x)]
+
+?upper.tri # i am a bit confused about this function
+```
+
+Why does `mtcars[1:20]` return an error? How does it differ from the similar `mtcars[1:20, ]`?
+```{r}
+mtcars[1:20] # Not specifying rows or coluns for a 2D object
+mtcars[1:20,]
+```
+
+Implement your own function that extracts the diagonal entries from a matrix (it should behave like `diag(x)` where `x` is a matrix).
+```{r}
+# May need further assistance with this.
+```
+
+What does `df[is.na(df)] <- 0` do? How does it work?
+```{r}
+df[is.na(df)] <- 0
+df # it should subset all NAs in df and replace them with 0
+```
+
+### 4.3 Exercises
+Brainstorm as many ways as possible to extract the third value from the `cyl` variable in the `mtcars` dataset.
+```{r}
+mtcars
+mtcars$cyl[3]
+```
+
+Given a linear model, e.g., `mod <- lm(mpg ~ wt, data = mtcars)`, extract the residual degrees of freedom. Then extract the R squared from the model summary (`summary(mod)`)
+```{r}
+mod <- lm(mpg ~ wt, data = mtcars)
+
+summary(mod)
+```
+
+#### 4.5 Exercises
+How would you randomly permute the columns of a data frame? (This is an important technique in random forests.) Can you simultaneously permute the rows and columns in one step?
+```{r}
+df[sample(nrow(df)),]
+?sample
+```
+
+How would you select a random sample of `m` rows from a data frame? What if the sample had to be contiguous (i.e., with an initial row, a final row, and every row in between)?
+
+How could you put the columns in a data frame in alphabetical order?
