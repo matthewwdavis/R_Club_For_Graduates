@@ -1,0 +1,73 @@
+---
+title: "2022_10_03_chapter5"
+author: "Matthew Davis"
+date: "2022-10-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Chapter 5
+
+### Quiz
+What is the difference between `if` and `ifelse()`?
+
+In the following code, what will the value of `y` be if `x` is `TRUE`? What if `x` is `FALSE`? What if `x` is `NA`?
+
+What does `switch("x", x = , y = 2, z = 3)` return?
+
+### 5.2.4 Exercise
+1. What type of vector does each of the following calls to `ifelse()` return?
+```{r}
+?ifelse
+class(ifelse(TRUE, 1, "no")) # Testing for a true variable creates a numeric vector
+class(ifelse(FALSE, 1, "no")) # Testing for a false variable creates a character vector
+class(ifelse(NA, 1, "no")) # Testing for a NA variable creates a numeric vector
+```
+
+2. Why does the following code work?
+```{r}
+x <- 1:10
+if (length(x)) "not empty" else "empty"
+# If these is any value in the x variable, the return output is "not empty"
+
+x <- numeric()
+if (length(x)) "not empty" else "empty"
+# If there is no value in the x variable, then the return output is "empty"
+```
+
+### Exercise 5.3.3
+1. Why does this code succeed without errors or warnings?
+```{r}
+x <- numeric()
+out <- vector("list", length(x))
+for (i in 1:length(x)) {
+  out[i] <- x[i] ^ 2
+}
+out # It isn't because of the vector specification here. Trying out <- numeric() yielded the same result.
+# Is it because the loop says to square everything in variable x, but there is nothing in variable x, so Null is still squared, which is Null
+```
+
+2. When the following code is evaluated, what can you say about the vector being iterated?
+```{r}
+xs <- c(1, 2, 3)
+for (x in xs) {
+  xs <- c(xs, x * 2)
+}
+xs 
+```
+
+3.What does the following code tell you about when the index is updated?
+```{r}
+for (i in 1:3) {
+  i <- i * 2
+  print(i) 
+} # is the index updated at the end of each iteration of the loop?
+```
+
+### Questions?
+I am a bit confused about 5.2.1 in general when discussing the input errors.
+
+ Can we go over Exercise 5.3.3?
