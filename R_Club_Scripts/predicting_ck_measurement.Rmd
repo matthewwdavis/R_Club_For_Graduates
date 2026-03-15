@@ -1,0 +1,41 @@
+---
+title: "predicting_ck_measurement"
+author: "Matthew Davis"
+date: "2022-10-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load libraries
+```{r}
+library(tidyverse)
+```
+
+
+# Create tibble
+```{r}
+data <- tribble(
+  ~measurement, ~ck_level,
+  1, 52000,
+  2, 112000,
+  3, 47000,
+  4, 26000,
+  5, 39000,
+  6, 31000,
+  7, 23000,
+  8, 8000,
+  9, 9000
+)
+data
+```
+
+# plot
+```{r}
+ggplot(data, aes(x = measurement, y = ck_level)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
